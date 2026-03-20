@@ -1,0 +1,52 @@
+# Environment
+.env
+.env.local
+.env.runtime
+# .claude config (exclude settings, keep skills)
+.claude/settings*.json
+.claude/projects/
+.bedrock_agentcore.yaml
+.DS_Store
+.pytest_cache/
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environment
+.venv/
+venv/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Distribution
+test/
+dist/
+build/
+*.egg-info/
+readme_v2.md
+MIGRATION_PLAN.md
+generate_ppt.py
+CLAUDE.md
+3layer_architecture.drawio
+static/
+/Users/peijiaw/Desktop/git_repos/demo/agent/otel_transform.py
+docs/agentcore_memory_guide.md
+docs/current_workflow_analysis.md
+docs/deployment_guide.md
+docs/dispatcher_test_report.md
+docs/session_dispatcher_design.md
+plan.md
+
