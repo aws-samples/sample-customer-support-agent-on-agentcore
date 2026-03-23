@@ -27,13 +27,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Download Bedrock cache proxy (Go static binary, ~10MB)
-# Provides 1-hour prompt caching for all Claude API calls
-ARG PROXY_VERSION=latest
-RUN curl -Lo /usr/local/bin/bedrock-effort-proxy \
-    "https://github.com/KevinZhao/claudecode-bedrock-proxy/releases/${PROXY_VERSION}/download/bedrock-effort-proxy-linux-arm64" \
-    && chmod +x /usr/local/bin/bedrock-effort-proxy
-
 # Copy requirements first for layer caching
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
@@ -44,10 +37,6 @@ RUN useradd -m -u 1000 appuser
 # Copy application code
 COPY agent/ agent/
 COPY .claude/ .claude/
-
-# Copy startup script
-COPY scripts/start.sh /app/start.sh
-RUN chmod +x /app/start.sh
 
 # Change ownership to appuser
 RUN chown -R appuser:appuser /app
@@ -71,12 +60,10 @@ ENV KNOWLEDGE_BASE_ID=<KNOWLEDGE_BASE_ID>
 # OpenTelemetry: manual OTEL SDK (no ADOT auto-instrumentation)
 ENV AGENTCORE_RUNTIME_ID=<RUNTIME_ID>
 
-# Bedrock cache proxy: route Claude Code CLI calls through local proxy
-# The proxy injects cache_control markers with 1h TTL into all Bedrock API calls
-ENV ANTHROPIC_BEDROCK_BASE_URL=http://127.0.0.1:8888
-ENV CLAUDE_CODE_SKIP_BEDROCK_AUTH=1
-ENV CACHE_ENABLED=1
-ENV CACHE_TTL=1h
+# Bedrock prompt caching (1h TTL) and adaptive thinking (effort=max)
+# Supported natively by Claude Code CLI — no proxy sidecar needed
+ENV ENABLE_PROMPT_CACHING_1H_BEDROCK=1
+ENV CLAUDE_CODE_MAX_OUTPUT_TOKENS=128000
 
 # Expose port
 EXPOSE 8080
@@ -85,5 +72,5 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8080/ping || exit 1
 
-# Start proxy sidecar + agent
-CMD ["/app/start.sh"]
+# Run agent directly
+CMD ["python", "-m", "agent.runtime"]
