@@ -96,7 +96,7 @@ class MemoryManager:
             memory = client.get_memory(memoryId=self.memory_id)
             for strategy in memory.get('memory', {}).get('strategies', []):
                 if strategy.get('type') == 'EPISODIC':
-                    self._episodic_strategy_id = strategy.get('id')
+                    self._episodic_strategy_id = strategy.get('strategyId')
                     logger.info(f"Resolved episodic strategy ID: {self._episodic_strategy_id}")
                     break
             if not self._episodic_strategy_id:
